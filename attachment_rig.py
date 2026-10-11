@@ -7,6 +7,8 @@ from pathlib import Path
 from tempfile import gettempdir
 from hashlib import sha1
 import os
+
+RENDER_VERSION = 2
 from png_scaling import read_rgba, chunk
 
 @lru_cache(maxsize=4)
@@ -43,6 +45,14 @@ def fitted_layer(art_dir,base_path,slug,kind):
     if not source.is_file():return None
     sw,sh,source_rows=part(str(source));w,h,base_rows=read_rgba(base_path)
     cx,cy=socket['x'],socket['y'];width=socket['width']
+    name=Path(base_path).stem
+    # Sleeping pets tuck their chin onto their chest; the pendant is covered.
+    if kind=='charm' and 'sleep' in name:return None
+    facing_left='left' in name or name.endswith('turn-270')
+    # The shared side drawing points right. Mirror both its artwork and ring
+    # offset together when the pet faces left.
+    if sockets['view']==1 and facing_left:
+        source_rows=[b''.join(row[x*4:x*4+4] for x in range(sw-1,-1,-1)) for row in source_rows]
     if kind=='collar':
         height=max(socket['height'],width*.24)
     elif kind=='bandana':
@@ -50,7 +60,7 @@ def fitted_layer(art_dir,base_path,slug,kind):
     elif kind=='charm':
         width*=.23;height=width*sh/sw
         # Ring is on the visible right of the collar, shared by every charm.
-        cx+=socket['width']*.23;cy+=socket['height']*.35+height*.40
+        cx+=socket['width']*.23*(-1 if facing_left else 1);cy+=socket['height']*.35+height*.40
     else:
         height=width*sh/sw
         if kind=='hat':cy=socket['y']+socket['height']/2-height/2
@@ -69,7 +79,9 @@ def fitted_layer(art_dir,base_path,slug,kind):
             rows[y][x*4:x*4+4]=pixel
     cache=Path(os.environ.get('LITTLE_COMPANIONS_ATTACHMENT_CACHE',gettempdir()))/'little-companions-attachments-v1'
     cache.mkdir(parents=True,exist_ok=True)
-    identity=sha1((str(root.resolve())+relative+slug+json.dumps(sockets,sort_keys=True)).encode()).hexdigest()
+    identity=sha1((str(RENDER_VERSION)+str(root.resolve())+relative+slug+
+                   json.dumps(sockets,sort_keys=True)+
+                   str(source.stat().st_mtime_ns)+str(Path(base_path).stat().st_mtime_ns)).encode()).hexdigest()
     output=cache/(identity+'.png')
     if not output.is_file():
         temporary=output.with_suffix('.tmp');temporary.write_bytes(png(w,h,rows));temporary.replace(output)

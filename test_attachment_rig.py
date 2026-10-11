@@ -43,11 +43,33 @@ class Attachments(unittest.TestCase):
                 if frame not in ('idle-0','sleep-1','walk-left-2','walk-up-0','run-right-3','turn-180'):continue
                 for item,definition in MODULAR.items():
                     result=fitted_layer(str(ROOT),str(base),item.lower().replace(' ','-'),definition['kind'])
-                    if frame in ('walk-up-0','turn-180') and definition['kind'] in ('charm','bandana'):
+                    if (frame in ('walk-up-0','turn-180') and definition['kind'] in ('charm','bandana')) or (frame=='sleep-1' and definition['kind']=='charm'):
                         self.assertIsNone(result)
                     elif result:
                         w,h,rows=read_rgba(str(result))
                         self.assertEqual((w,h),(360,310))
                         self.assertTrue(any(row[x]>0 for row in rows for x in range(3,len(row),4)),(pet,frame,item))
+
+    def test_moving_neckwear_stays_above_the_shoulders(self):
+        frames=rig(str(ROOT))
+        for pet in ('mochi','maple','clover','pip'):
+            for pose in ('walk-left-2','walk-right-2','run-right-3'):
+                sockets=frames[f'outfits/{pet}/{pose}.png']
+                neck=sockets['neck']
+                self.assertLess(neck['y'],210,(pet,pose))
+                if 'left' in pose:self.assertLess(neck['x'],115,(pet,pose))
+                else:self.assertGreater(neck['x'],245,(pet,pose))
+
+    def test_left_and_right_charms_follow_the_neck(self):
+        for pet in ('mochi','maple','clover','pip'):
+            centers=[]
+            for direction in ('left','right'):
+                base=ROOT/'outfits'/pet/f'walk-{direction}-2.png'
+                result=fitted_layer(str(ROOT),str(base),'acorn-charm','charm')
+                self.assertIsNotNone(result)
+                w,h,rows=read_rgba(str(result))
+                xs=[x for row in rows for x in range(w) if row[x*4+3]>32]
+                centers.append((min(xs)+max(xs))/2)
+            self.assertAlmostEqual(sum(centers),360,delta=3,msg=pet)
 
 if __name__=='__main__':unittest.main()

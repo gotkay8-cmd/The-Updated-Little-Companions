@@ -13,6 +13,11 @@ the pet silhouette and below the chin line. Source proportions are retained for
 bows, hats, bandanas, and charms; collar depth is constrained to the neck.
 
 The initial socket positions were imported from the previous fitted overlays.
+The v2 rig corrects 832 left/right walking and running neck sockets to sit
+under the chin instead of on the shoulder. Side artwork and charm offsets
+mirror together. Sleeping poses hide pendants under the tucked chin.
+Rendering cache identities include the renderer version and artwork timestamps,
+so updated artwork no longer reuses an earlier generated layer.
 They are editable art metadata, not anatomically traced head/ear masks. Strong
 head tilts and unusually bulky costumes may still need socket or mask refinement.
 The renderer falls back to legacy layers for frames with no rig entry.
