@@ -132,7 +132,7 @@ class RoomInteractions:
                 x,y=self.view(e.widget).point(v['x'],v['y']);self.decoration_drag=(e.x-x,e.y-y)
         else:
             zone=self.pointer_zone(e.widget,e.x,e.y)
-            if zone:self.interact(zone)
+            if zone:self.interact(zone,count=False)
             self.refresh_pointer_reaction()
         self.render_animals()
 

@@ -1,3 +1,15 @@
+## v0.49 — Activity tracking and reaction playback
+
+Windows click/typing hooks now run on their own message-loop thread, separately
+from artwork loading and UI rendering. If that listener exits, activity falls
+back to polling. With background activity disabled, ordinary in-game clicks
+still count; direct pet presses are counted once. Repeated typing and clicking
+extend the current reaction without restarting its animation every time.
+
+New art direction sheets are previews for approval, not installed replacements.
+All expected outfit frame files are present. Some original play/toy reactions
+reuse drawings and require separately approved artwork for distinct motions.
+
 ## v0.48 — Wardrobe fitting room
 
 Open Wardrobe from Collection and choose a companion. The animated model lets

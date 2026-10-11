@@ -144,7 +144,7 @@ class VisualUI:
                 self.label(self.content,f'Port {self.room_server.port} • Share this invite privately:',10,bg=CREAM).pack(anchor='w',pady=12)
                 token=tk.Entry(self.content,width=48);token.insert(0,self.room_token);token.configure(state='readonly');token.pack(anchor='w')
             self.friend_label=self.label(self.content,'',13,bg=CREAM,justify='left');self.friend_label.pack(anchor='w',pady=18)
-            row=tk.Frame(self.content,bg=CREAM);row.pack(anchor='w');self.button(row,'Send heart ♥',lambda:self.interact('heart'));self.button(row,'Wave',lambda:self.interact('wave'))
+            row=tk.Frame(self.content,bg=CREAM);row.pack(anchor='w');self.button(row,'Send heart ♥',lambda:self.interact('heart',count=False));self.button(row,'Wave',lambda:self.interact('wave',count=False))
         else:
             from comfort import settings_page
             settings_page(self);return

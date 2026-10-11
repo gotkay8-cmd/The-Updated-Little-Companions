@@ -1,6 +1,6 @@
 # Little Companions
 
-Desktop companion prototype with a v0.48 wardrobe fitting room for future development.
+Desktop companion prototype with a wardrobe fitting room and v0.49 activity tracking fixes.
 
 ## Run on Windows
 

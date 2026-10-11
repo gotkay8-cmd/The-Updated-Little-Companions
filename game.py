@@ -50,6 +50,7 @@ class App(ReferenceUI,RoomInteractions):
         self.stats=tk.StringVar(); self.banner=tk.StringVar(value='Solo • Your progress stays on this computer')
         self.build()
         self.root.bind('<KeyPress>',self.local_key)
+        self.root.bind('<ButtonPress>',self.local_click,add='+')
         self.root.bind('<F11>',lambda e:self.fullscreen())
         self.root.protocol('WM_DELETE_WINDOW',self.close)
         if sys.platform=='win32':
@@ -170,18 +171,13 @@ class App(ReferenceUI,RoomInteractions):
         now=time.monotonic() if now is None else now
         play=('heart','wave')
         continuing=now<self.until and (self.reaction==reaction or self.reaction in play and reaction in play)
-        if reaction=='typing':
-            self.animation_offset=(self.animation_frame(now)+count)%4 if continuing else 0
-            self.animation_started=now
-        elif reaction=='click':
-            self.animation_offset=1;self.animation_started=now
-        elif not continuing:
+        if not continuing:
             self.animation_offset=1 if reaction in ('pet','toy') else 0;self.animation_started=now
         # Repeated clicks refresh affection without skipping the paw's return.
         self.last_activity=now;self.reaction=reaction;self.until=now+.84
 
-    def interact(self,reaction):
-        if not self.global_input:self.activity(reaction=reaction)
+    def interact(self,reaction,count=True):
+        if not self.global_input and count:self.activity(reaction=reaction)
         else:self.start_reaction(reaction)
         self.until=self.last_activity+2
         self.render_animals()
@@ -190,6 +186,13 @@ class App(ReferenceUI,RoomInteractions):
         if not self.global_input and not isinstance(event.widget,(tk.Entry,ttk.Combobox)) and event.keysym not in ('F11','Shift_L','Shift_R','Control_L','Control_R','Alt_L','Alt_R'):
             self.activity()
             self.render_animals()
+
+    def local_click(self,event):
+        # When background tracking is disabled, ordinary interface clicks still
+        # count. Direct pet actions supply their own activity event.
+        if not self.global_input and not self.paused:
+            self.state.activity(1,'clicks')
+            self.dirty=True
 
     def toggle_pause(self):self.paused=self.pause_var.get()
     def toggle_global(self):
@@ -308,6 +311,9 @@ class App(ReferenceUI,RoomInteractions):
         self.update_gift_reveal(now)
         if getattr(self,'native_desktop',None):self.native_desktop.drain_actions()
         if self.global_input and sys.platform=='win32':
+            if self.hooked and not self.background.running:
+                self.hooked=False
+                self.notice.set('Activity listener stopped; using fast activity polling.')
             if self.hooked:
                 for reaction in self.background.drain():
                     # Preserve a direct pet-button reaction while counting the click.
