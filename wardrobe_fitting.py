@@ -85,6 +85,7 @@ class FittingRoom:
         self.wear = CozyButton(actions, 'Wear this look', self.apply, font, accent=True)
         self.wear.pack(side='left', padx=4)
         CozyButton(actions, 'Reset to wearing', self.reset, font).pack(side='left', padx=4)
+        CozyButton(actions, 'Try storybook look', self.storybook, font).pack(side='left', padx=4)
         self.refresh()
         self.tick()
 
@@ -116,6 +117,13 @@ class FittingRoom:
     def cycle(self, slot, step):
         self.draft.cycle(slot, step, self.app.state.data)
         self.refresh()
+        self.render()
+
+    def storybook(self):
+        from approved_art import approved_slots
+        self.draft.slots = approved_slots(self.draft.pet)
+        self.refresh()
+        self.status.configure(text='Storybook artwork includes the flower, collar and acorn. Buy any missing items, then choose Wear this look. Other combinations use the existing wardrobe artwork.')
         self.render()
 
     def buy(self, slot):

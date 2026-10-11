@@ -47,6 +47,9 @@ def outfit_sprite(art_dir,data,pet,motion,index,walking=None,facing=0,running=No
           f'walk-{walking}-{index%walk_frame_count(walking)}' if walking else
           f'turn-{facing}' if facing in OUTFIT_ANGLES and facing else
           f'{motion}-{index%4}')
+    from approved_art import approved_sprite
+    approved = approved_sprite(art_dir, data, pet, name)
+    if approved is not None:return approved
     directory=Path(art_dir)/'outfits'/pet.lower()
     variant=CATALOG[worn[0]].get('variant')
     if variant:directory=directory/variant

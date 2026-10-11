@@ -38,6 +38,8 @@ def equip_accessory(data,pet,item):
 def layer_key(art_dir,base_path):
     return sha1(Path(base_path).relative_to(Path(art_dir)).as_posix().encode()).hexdigest()[:16]
 def layer_paths(art_dir,data,pet,base_path):
+    from approved_art import is_approved_frame
+    if is_approved_frame(art_dir, base_path):return []
     from attachment_rig import attachment_paths
     attached=attachment_paths(art_dir,pet,base_path,accessory_equipped(data,pet),MODULAR)
     if attached is not None:return attached

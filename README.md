@@ -1,6 +1,10 @@
 # Little Companions
 
-Desktop companion prototype with a wardrobe fitting room and v0.49 activity tracking fixes.
+Desktop companion prototype with a wardrobe fitting room, approved storybook animation artwork, and activity tracking fixes.
+
+In the wardrobe, choose **Try storybook look**, buy any missing items, then **Wear this look**. The matching original outfit + Daisy Ear Bow + Meadow Collar + Acorn Charm combination uses the new complete drawings in the room, desktop pet, and wardrobe. It includes the corrected alternating-paw play loop and Mochi's revised third play frame.
+
+The approved drawings have their accessories painted in. Other wardrobe combinations continue to use the existing customizable artwork; the beret, bandana, and Halloween concept previews are not yet animation assets. Idle uses the neutral play pose, toy uses the play loop, and turning uses the nearest available directional walking pose.
 
 ## Run on Windows
 
