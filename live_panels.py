@@ -103,49 +103,8 @@ class LivePanels:
         canvas.bind('<Destroy>',lambda e:[self.root.unbind_class(tag,event) for event in ('<MouseWheel>','<Button-4>','<Button-5>')] if e.widget==canvas else None)
 
     def wardrobe_panel(self):
-        self.shop_heading_font=shop_font(self.root)
-        d=self.state.data;current=getattr(self,'wardrobe_group','All')
-        from cozy_ui import ornament
-        heading=tk.Frame(self.content,bg=CREAM);heading.pack(fill='x',padx=8,pady=(0,6));ornament(heading)
-        self.shop_label(heading,'A little something cozy for every companion',13,True,bg=CREAM).pack(side='left')
-        self.shop_label(self.content,'Your owned clothing, accessories and outfits • choose an animal to get dressed',10,bg=CREAM).pack(anchor='w',padx=12,pady=4)
-        from cozy_ui import selection_row
-        selection_row(self,self.content,[(d['names'].get(pet,pet),lambda p=pet:self.choose_wardrobe(p),pet==current) for pet in ['All']+list(PETS)])
-        self.shop_label(self.content,'Mix an outfit with headwear, a collar and a charm. Charms need a collar.',10,bg=CREAM).pack(anchor='w',padx=12,pady=(0,6))
-        shell=tk.Frame(self.content,bg=CREAM);shell.pack(fill='both',expand=True)
-        canvas=tk.Canvas(shell,bg=CREAM,highlightthickness=0);scroll=CozyScrollbar(shell,command=canvas.yview)
-        canvas.configure(yscrollcommand=scroll.set,yscrollincrement=36);scroll.pack(side='right',fill='y');canvas.pack(side='left',fill='both',expand=True)
-        grid=tk.Frame(canvas,bg=CREAM);window=canvas.create_window(0,0,window=grid,anchor='nw')
-        canvas.bind('<Configure>',lambda e:canvas.itemconfigure(window,width=e.width));grid.bind('<Configure>',lambda e:canvas.configure(scrollregion=canvas.bbox('all')))
-        from wardrobe import owned_wearables
-        visible=owned_wearables(d,None if current=='All' else current)
-        for col in range(3):grid.columnconfigure(col,weight=1,uniform='wardrobe')
-        for i,item in enumerate(visible):
-            pet=CATALOG[item]['pet'] or (d['pet'] if current=='All' else current);active=item in equipped(d,pet)
-            outer=BotanicalCard(grid,item in HALLOWEEN_ITEMS);outer.grid(row=i//3,column=i%3,sticky='nsew',padx=4,pady=5);box=outer.body
-            image=tk.Canvas(box,width=205,height=116,bg=PAPER,highlightthickness=0);image.pack()
-            paper(image,205,116,item in HALLOWEEN_ITEMS)
-            image.create_image(102,58,image=self.items_small[item])
-            rounded(image,5,2,105,25,12,fill=RARITY_COLORS[ITEM_RARITY[item]],outline=CREAM)
-            image.create_text(55,13,text=ITEM_RARITY[item],fill='white',font=(self.body_font,9,'bold'))
-            for x,label,color in [(4,f'Owned {total_owned(d,item)}','#f4d9bd'),(108,'Wearing' if active else 'In closet','#dce6cf')]:
-                rounded(image,x,86,x+94,112,13,fill=color,outline='#cbb493')
-                image.create_text(x+47,99,text=label,fill=INK,font=(self.body_font,9,'bold'))
-            Banner(box,item,self.shop_heading_font,small=True).pack(fill='x')
-            self.shop_label(box,d['names'][pet],10,wraplength=190).pack(pady=3)
-            row=tk.Frame(box,bg=PAPER);row.pack(pady=7)
-            self.shop_button(row,'Remove' if active else 'Wear',lambda name=item,pet=pet:self.wear_from_wardrobe(name,pet),active)
-            self.shop_button(row,'Preview',lambda name=item:self.preview_outfit(name))
-        if not visible:self.shop_label(grid,'Your wardrobe is waiting for something cozy.',13,True,bg=CREAM).pack(pady=25)
-        self.shop_button(self.content,'Visit the shop',lambda:self.show('Shop')).pack_configure(side='top',pady=6)
-        tag='WardrobeScroll'+str(id(canvas))
-        for event,step in [('<Button-4>',-1),('<Button-5>',1)]:self.root.bind_class(tag,event,lambda e,s=step:canvas.yview_scroll(s,'units'))
-        self.root.bind_class(tag,'<MouseWheel>',lambda e:canvas.yview_scroll(-1 if e.delta>0 else 1,'units'))
-        def bind_tree(w):
-            w.bindtags((tag,)+w.bindtags())
-            for child in w.winfo_children():bind_tree(child)
-        bind_tree(canvas)
-        canvas.bind('<Destroy>',lambda e:[self.root.unbind_class(tag,event) for event in ('<MouseWheel>','<Button-4>','<Button-5>')] if e.widget==canvas else None)
+        from wardrobe_fitting import build_fitting_room
+        build_fitting_room(self)
 
     def choose_wardrobe(self,pet):self.wardrobe_group=pet;self.show('Wardrobe')
     def wear_from_wardrobe(self,item,pet=None):

@@ -1,3 +1,17 @@
+## v0.48 — Wardrobe fitting room
+
+Open Wardrobe from Collection and choose a companion. The animated model lets
+you browse Outfit, Hat or bow, Collar or bandana, and Charm using the arrows.
+Select a motion to inspect the look walking, running, turning, or sleeping.
+Unowned items can be tried on and bought directly beside their category using
+the existing leaves or Moonstone price. Purchases unlock items without applying
+the draft. Choose **Wear this look** to save the combination, or **Reset to
+wearing** to return to the current equipment. Browsing never spends currency.
+Charms require a collar. Expired seasonal items appear only if already owned.
+Outfits with painted-in headwear still block extra hats, while bows remain
+available. This fitting room uses the current artwork; separating built-in
+clothing and headwear into removable art layers is a separate art conversion.
+
 ## v0.47 — Layered accessories and matching collection pages
 
 Ten modular accessories can be purchased with leaves in Shop → Accessories; the five Halloween pieces also appear in Halloween and leave sale on November 7, 2026. Owned pieces remain usable. Equip one head/ear item, one neck item, and one charm per pet alongside an outfit. Charms require Meadow Collar or Midnight Collar; bandanas remove charms. Outfits with built-in headwear block extra headwear. Accessory layers use the currently selected base/outfit frame in rooms and desktop mode, without replacing pet animations. Rear-facing and sleeping charms are hidden where covered; collars/bandanas are concealed by the chin and paws during sleep. Preview uses your selected pet and outfit without changing your save. Collection, Wardrobe, and Rewards adopt the shop’s botanical stationery style. Native Windows rendering still needs visual testing.
