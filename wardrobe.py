@@ -40,20 +40,12 @@ def equipped(data,pet):
     item=data.get('wardrobe',{}).get(pet,{}).get('outfit')
     return ([item] if available(item,pet) and item in data.get('items',[]) and CATALOG[item]['slot']=='outfit' else [])+accessory_equipped(data,pet)
 def outfit_sprite(art_dir,data,pet,motion,index,walking=None,facing=0,running=None):
-    """Return a complete pet frame, never an overlay or a base sprite."""
-    worn=[i for i in equipped(data,pet) if CATALOG[i]['slot']=='outfit']
-    if not worn:return None
-    name=(f'run-{running}-{index%8}' if running else
-          f'walk-{walking}-{index%walk_frame_count(walking)}' if walking else
-          f'turn-{facing}' if facing in OUTFIT_ANGLES and facing else
-          f'{motion}-{index%4}')
-    from approved_art import approved_sprite
-    approved = approved_sprite(art_dir, data, pet, name)
-    if approved is not None:return approved
-    directory=Path(art_dir)/'outfits'/pet.lower()
-    variant=CATALOG[worn[0]].get('variant')
-    if variant:directory=directory/variant
-    return directory/(name+'.png')
+    """Return the frame; layered sequences attach clothing through layer_paths."""
+    from layered_animation import base_frame,motion_frame
+    layered = motion_frame(art_dir,pet,motion,index,walking,running,facing)
+    if layered is None and not running:layered=base_frame(art_dir,pet,walking,index)
+    if layered is not None:return layered
+    raise FileNotFoundError(f'Approved animation missing: {pet} {motion} {walking or running or facing}')
 def turn_angles(data,pet):
     return OUTFIT_ANGLES if any(CATALOG[i]['slot']=='outfit' for i in equipped(data,pet)) else (0,90,135,180,225,270)
 def migrate_clothing(data):
@@ -90,7 +82,9 @@ def migrate_clothing(data):
     return f'Wardrobe updated: {len(upgrades)} complete outfit(s) upgraded; {credit} leaves returned for retired clothing and spares.'
 
 
-def walk_frame_count(direction):return 4
+def walk_frame_count(direction):
+    from layered_animation import walking_timing
+    return walking_timing(direction)[0]
 
 def owned_wearables(data,pet=None):
     return [item for item,info in CATALOG.items() if item in data.get('items',[]) and (pet is None or info['pet'] in (None,pet))]

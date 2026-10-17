@@ -1,0 +1,362 @@
+[
+  {
+    "pet": "maple",
+    "outfit": "harvest-scarecrow",
+    "part": "scarecrow-hat",
+    "kind": "hat",
+    "motion": "typing",
+    "target": "assets/v5/layered-motions/maple/typing",
+    "frames": 8
+  },
+  {
+    "pet": "maple",
+    "outfit": "harvest-scarecrow",
+    "part": "scarecrow-hat",
+    "kind": "hat",
+    "motion": "pet",
+    "target": "assets/v5/layered-motions/maple/pet",
+    "frames": 8
+  },
+  {
+    "pet": "maple",
+    "outfit": "harvest-scarecrow",
+    "part": "scarecrow-hat",
+    "kind": "hat",
+    "motion": "play",
+    "target": "assets/v5/layered-motions/maple/play",
+    "frames": 8
+  },
+  {
+    "pet": "maple",
+    "outfit": "harvest-scarecrow",
+    "part": "scarecrow-hat",
+    "kind": "hat",
+    "motion": "click",
+    "target": "assets/v5/layered-motions/maple/click",
+    "frames": 8
+  },
+  {
+    "pet": "maple",
+    "outfit": "harvest-scarecrow",
+    "part": "scarecrow-hat",
+    "kind": "hat",
+    "motion": "sleep",
+    "target": "assets/v5/layered-motions/maple/sleep",
+    "frames": 8
+  },
+  {
+    "pet": "maple",
+    "outfit": "harvest-scarecrow",
+    "part": "scarecrow-hat",
+    "kind": "hat",
+    "motion": "walk-down",
+    "target": "assets/v5/layered-motions/maple/walk-down",
+    "frames": 16
+  },
+  {
+    "pet": "maple",
+    "outfit": "harvest-scarecrow",
+    "part": "scarecrow-hat",
+    "kind": "hat",
+    "motion": "walk-up",
+    "target": "assets/v5/layered-motions/maple/walk-up",
+    "frames": 16
+  },
+  {
+    "pet": "maple",
+    "outfit": "harvest-scarecrow",
+    "part": "scarecrow-hat",
+    "kind": "hat",
+    "motion": "run-right",
+    "target": "assets/v5/layered-motions/maple/run-right",
+    "frames": 10
+  },
+  {
+    "pet": "maple",
+    "outfit": "harvest-scarecrow",
+    "part": "scarecrow-hat",
+    "kind": "hat",
+    "motion": "idle",
+    "target": "assets/v5/layered-motions/maple/idle",
+    "frames": 4
+  },
+  {
+    "pet": "maple",
+    "outfit": "harvest-scarecrow",
+    "part": "scarecrow-hat",
+    "kind": "hat",
+    "motion": "walk-right",
+    "target": "assets/v5/layered-walk/maple/right",
+    "frames": 9
+  },
+  {
+    "pet": "pip",
+    "outfit": "moon-wizard",
+    "part": "wizard-hat",
+    "kind": "hat",
+    "motion": "typing",
+    "target": "assets/v5/layered-motions/pip/typing",
+    "frames": 8
+  },
+  {
+    "pet": "pip",
+    "outfit": "moon-wizard",
+    "part": "wizard-hat",
+    "kind": "hat",
+    "motion": "pet",
+    "target": "assets/v5/layered-motions/pip/pet",
+    "frames": 8
+  },
+  {
+    "pet": "pip",
+    "outfit": "moon-wizard",
+    "part": "wizard-hat",
+    "kind": "hat",
+    "motion": "play",
+    "target": "assets/v5/layered-motions/pip/play",
+    "frames": 8
+  },
+  {
+    "pet": "pip",
+    "outfit": "moon-wizard",
+    "part": "wizard-hat",
+    "kind": "hat",
+    "motion": "click",
+    "target": "assets/v5/layered-motions/pip/click",
+    "frames": 8
+  },
+  {
+    "pet": "pip",
+    "outfit": "moon-wizard",
+    "part": "wizard-hat",
+    "kind": "hat",
+    "motion": "sleep",
+    "target": "assets/v5/layered-motions/pip/sleep",
+    "frames": 8
+  },
+  {
+    "pet": "pip",
+    "outfit": "moon-wizard",
+    "part": "wizard-hat",
+    "kind": "hat",
+    "motion": "walk-down",
+    "target": "assets/v5/layered-motions/pip/walk-down",
+    "frames": 16
+  },
+  {
+    "pet": "pip",
+    "outfit": "moon-wizard",
+    "part": "wizard-hat",
+    "kind": "hat",
+    "motion": "walk-up",
+    "target": "assets/v5/layered-motions/pip/walk-up",
+    "frames": 16
+  },
+  {
+    "pet": "pip",
+    "outfit": "moon-wizard",
+    "part": "wizard-hat",
+    "kind": "hat",
+    "motion": "run-right",
+    "target": "assets/v5/layered-motions/pip/run-right",
+    "frames": 11
+  },
+  {
+    "pet": "pip",
+    "outfit": "moon-wizard",
+    "part": "wizard-hat",
+    "kind": "hat",
+    "motion": "idle",
+    "target": "assets/v5/layered-motions/pip/idle",
+    "frames": 4
+  },
+  {
+    "pet": "pip",
+    "outfit": "moon-wizard",
+    "part": "wizard-hat",
+    "kind": "hat",
+    "motion": "walk-right",
+    "target": "assets/v5/layered-walk/pip/right",
+    "frames": 9
+  },
+  {
+    "pet": "clover",
+    "outfit": "woodland-fairy",
+    "part": "fairy-wings",
+    "kind": "wings",
+    "motion": "typing",
+    "target": "assets/v5/layered-motions/clover/typing",
+    "frames": 8
+  },
+  {
+    "pet": "clover",
+    "outfit": "woodland-fairy",
+    "part": "fairy-wings",
+    "kind": "wings",
+    "motion": "pet",
+    "target": "assets/v5/layered-motions/clover/pet",
+    "frames": 8
+  },
+  {
+    "pet": "clover",
+    "outfit": "woodland-fairy",
+    "part": "fairy-wings",
+    "kind": "wings",
+    "motion": "play",
+    "target": "assets/v5/layered-motions/clover/play",
+    "frames": 8
+  },
+  {
+    "pet": "clover",
+    "outfit": "woodland-fairy",
+    "part": "fairy-wings",
+    "kind": "wings",
+    "motion": "click",
+    "target": "assets/v5/layered-motions/clover/click",
+    "frames": 8
+  },
+  {
+    "pet": "clover",
+    "outfit": "woodland-fairy",
+    "part": "fairy-wings",
+    "kind": "wings",
+    "motion": "sleep",
+    "target": "assets/v5/layered-motions/clover/sleep",
+    "frames": 8
+  },
+  {
+    "pet": "clover",
+    "outfit": "woodland-fairy",
+    "part": "fairy-wings",
+    "kind": "wings",
+    "motion": "walk-down",
+    "target": "assets/v5/layered-motions/clover/walk-down",
+    "frames": 16
+  },
+  {
+    "pet": "clover",
+    "outfit": "woodland-fairy",
+    "part": "fairy-wings",
+    "kind": "wings",
+    "motion": "walk-up",
+    "target": "assets/v5/layered-motions/clover/walk-up",
+    "frames": 16
+  },
+  {
+    "pet": "clover",
+    "outfit": "woodland-fairy",
+    "part": "fairy-wings",
+    "kind": "wings",
+    "motion": "run-right",
+    "target": "assets/v5/layered-motions/clover/run-right",
+    "frames": 10
+  },
+  {
+    "pet": "clover",
+    "outfit": "woodland-fairy",
+    "part": "fairy-wings",
+    "kind": "wings",
+    "motion": "idle",
+    "target": "assets/v5/layered-motions/clover/idle",
+    "frames": 4
+  },
+  {
+    "pet": "clover",
+    "outfit": "woodland-fairy",
+    "part": "fairy-wings",
+    "kind": "wings",
+    "motion": "walk-right",
+    "target": "assets/v5/layered-walk/clover/right",
+    "frames": 9
+  },
+  {
+    "pet": "pip",
+    "outfit": "little-bat",
+    "part": "bat-wings",
+    "kind": "wings",
+    "motion": "typing",
+    "target": "assets/v5/layered-motions/pip/typing",
+    "frames": 8
+  },
+  {
+    "pet": "pip",
+    "outfit": "little-bat",
+    "part": "bat-wings",
+    "kind": "wings",
+    "motion": "pet",
+    "target": "assets/v5/layered-motions/pip/pet",
+    "frames": 8
+  },
+  {
+    "pet": "pip",
+    "outfit": "little-bat",
+    "part": "bat-wings",
+    "kind": "wings",
+    "motion": "play",
+    "target": "assets/v5/layered-motions/pip/play",
+    "frames": 8
+  },
+  {
+    "pet": "pip",
+    "outfit": "little-bat",
+    "part": "bat-wings",
+    "kind": "wings",
+    "motion": "click",
+    "target": "assets/v5/layered-motions/pip/click",
+    "frames": 8
+  },
+  {
+    "pet": "pip",
+    "outfit": "little-bat",
+    "part": "bat-wings",
+    "kind": "wings",
+    "motion": "sleep",
+    "target": "assets/v5/layered-motions/pip/sleep",
+    "frames": 8
+  },
+  {
+    "pet": "pip",
+    "outfit": "little-bat",
+    "part": "bat-wings",
+    "kind": "wings",
+    "motion": "walk-down",
+    "target": "assets/v5/layered-motions/pip/walk-down",
+    "frames": 16
+  },
+  {
+    "pet": "pip",
+    "outfit": "little-bat",
+    "part": "bat-wings",
+    "kind": "wings",
+    "motion": "walk-up",
+    "target": "assets/v5/layered-motions/pip/walk-up",
+    "frames": 16
+  },
+  {
+    "pet": "pip",
+    "outfit": "little-bat",
+    "part": "bat-wings",
+    "kind": "wings",
+    "motion": "run-right",
+    "target": "assets/v5/layered-motions/pip/run-right",
+    "frames": 11
+  },
+  {
+    "pet": "pip",
+    "outfit": "little-bat",
+    "part": "bat-wings",
+    "kind": "wings",
+    "motion": "idle",
+    "target": "assets/v5/layered-motions/pip/idle",
+    "frames": 4
+  },
+  {
+    "pet": "pip",
+    "outfit": "little-bat",
+    "part": "bat-wings",
+    "kind": "wings",
+    "motion": "walk-right",
+    "target": "assets/v5/layered-walk/pip/right",
+    "frames": 9
+  }
+]

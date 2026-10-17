@@ -23,7 +23,11 @@ def scene_key(app,canvas):
     if getattr(app,'previewing_room',None):return geometry+('preview',)
     motion,index=app.sprite_state(p)
     walk=getattr(app,'wander',None)
-    movement=(walk['direction'],int((now-walk['started'])/.18)%4) if walk and app.walking_now() else None
+    from layered_animation import walking_timing
+    movement=None
+    if walk and app.walking_now():
+        count,interval=walking_timing(walk['direction'])
+        movement=(walk['direction'],int((now-walk['started'])/interval)%count)
     # Snapshot mutable placements rather than retaining references to save data.
     decor=tuple((str(item),tuple(sorted(app.decoration_layout(item).items()))) for item in d['decorations'][p])
     remotes=tuple((q['id'],q['pet'],q['name'],q['reaction'],app.sprite_state(q['pet'],q['reaction'])) for q in app.remote if q['id']!=app.player_id)

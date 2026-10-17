@@ -52,7 +52,7 @@ class FittingRoomTests(unittest.TestCase):
         draft.slots = {'outfit': 'Mochi Little Witch Outfit', 'head': 'Daisy Ear Bow'}
         draft.normalize()
         self.assertEqual(draft.slots['head'], 'Daisy Ear Bow')
-        self.assertNotIn('Cozy Beret', draft.options('head', data()))
+        self.assertIn('Cozy Beret', draft.options('head', data()))
 
     def test_expired_items_remain_available_only_if_owned(self):
         original = data()

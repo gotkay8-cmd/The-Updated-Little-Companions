@@ -18,12 +18,13 @@ class VisualUI:
         self.art_paths={}
         def photo(name):
             path=self.art_dir/name;image=tk.PhotoImage(file=str(path));self.art_paths[str(image)]=path;return image
-        self.motion_art={p:{m:[photo(f'{p.lower()}_{m}_{i}.png') for i in range(4)] for m in ('idle','typing','play','sleep','click','pet','toy')} for p in PETS}
+        from layered_animation import timing
+        self.motion_art={p:{m:[photo(outfit_sprite(self.art_dir,{},p,m,i)) for i in range(timing(self.art_dir,p,m)[0])] for m in ('idle','typing','play','sleep','click','pet','toy')} for p in PETS}
         self.pet_art={p:{m:frames[0] for m,frames in motions.items()} for p,motions in self.motion_art.items()}
         self.typing_art={p:self.motion_art[p]['typing'] for p in PETS}
-        self.walk_art={p:{direction:[photo(f'{p.lower()}-walk-{direction}-{i}.png') for i in range(4)] for direction in ('left','right','up','down')} for p in PETS}
-        self.turn_art={p:{angle:photo(f'{p.lower()}-turn-{angle}.png') for angle in (90,135,180,225,270)} for p in PETS}
-        self.mochi_bare={m:[photo(f'mochi-bare-{m}-{i}.png') for i in range(4)] for m in self.motion_art['Mochi']}
+        self.walk_art={p:{direction:[photo(outfit_sprite(self.art_dir,{},p,'idle',i,walking=direction)) for i in range(timing(self.art_dir,p,walking=direction)[0])] for direction in ('left','right','up','down')} for p in PETS}
+        self.turn_art={p:{angle:photo(outfit_sprite(self.art_dir,{},p,'idle',0,facing=angle)) for angle in (90,135,180,225,270)} for p in PETS}
+        self.mochi_bare=self.motion_art['Mochi']
         from model import CUSHIONS
         self.seat_art={item:photo('seat-'+item.lower().replace(' ','-')+'.png') for item in CUSHIONS}
         self.action_art={name:photo(f'button-{name}.png') for name in ('pet','play','decorate','idle','desktop')}
@@ -188,15 +189,27 @@ class VisualUI:
         reaction=self.reaction if reaction is None else reaction
         motion={'heart':'pet','wave':'play'}.get(reaction,reaction)
         if motion not in self.motion_art[pet]:motion='idle'
-        if motion=='idle':index=[0]*22+[1,2,1,0];index=index[int(time.monotonic()*8)%len(index)]
-        elif reaction==self.reaction and motion!='sleep':index=self.animation_frame()
-        else:index=int(time.monotonic()*(2 if motion=='sleep' else 7))%4
-        if motion=='toy' and reaction==self.reaction:index=self.toy_side if index%2 else 0
+        cursor=getattr(self,'cursor_reaction',None)
+        if pet==self.state.data['pet'] and cursor and cursor.zone==reaction and reaction in ('pet','toy'):
+            return motion,cursor.frame
+        input_animation=getattr(self,'input_animations',{}).get(motion)
+        if pet==self.state.data['pet'] and reaction==self.reaction and input_animation is not None:
+            return motion,input_animation.frame(time.monotonic())
+        if motion=='idle':
+            from layered_animation import idle_index
+            index=idle_index(self.art_dir,pet,time.monotonic())
+        else:
+            from layered_animation import timing,sequence
+            count,interval=timing(self.art_dir,pet,motion)
+            started=self.animation_started if reaction==self.reaction else 0
+            index=int(max(0,time.monotonic()-started)/interval)%count
+            if motion=='toy' and reaction==self.reaction and not sequence(self.art_dir,pet,motion):
+                index=self.toy_side if index%2 else 0
         return motion,index
 
     def sprite(self,pet,reaction=None):
         motion,index=self.sprite_state(pet,reaction)
-        return self.motion_art[pet][motion][index]
+        return self.motion_art[pet][motion][index%len(self.motion_art[pet][motion])]
 
     def scaled_art(self,image,percent):
         if abs(percent-100)<.01:return image
@@ -237,13 +250,16 @@ class VisualUI:
         walking=local and self.walking_now()
         direction=None
         if walking:
-            direction=self.wander['direction'];index=int((time.monotonic()-self.wander['started'])/.18)%4
+            from layered_animation import walking_timing
+            direction=self.wander['direction']
+            count,interval=walking_timing(direction)
+            index=int((time.monotonic()-self.wander['started'])/interval)%count
             angle=0
         path=outfit_sprite(self.art_dir,self.state.data,pet,motion,index,walking=direction,facing=facing)
         if path:
             # The approved front-facing Mochi drawings include her pink cushion.
             # Walking/turning drawings are cushion-free, with the same ground anchor.
-            baked_cushion=pet=='Mochi' and not walking and not facing
+            baked_cushion=False
             if baked_cushion:seat=None
             offset=(-43 if seat else 0)*scale
             key=str(path)
@@ -251,6 +267,8 @@ class VisualUI:
                 if len(self.outfit_cache)>=128:self.outfit_cache.pop(next(iter(self.outfit_cache)))
                 art=tk.PhotoImage(file=key);self.art_paths[str(art)]=path;self.outfit_cache[key]=art
             art=self.outfit_cache[key]
+            if 'layered-motions' in path.parts:
+                offset=(155-art.height()/2)*scale
         else:
             baked_default=pet=='Mochi' and cushion=='Default' and not facing and not away
             if baked_default:seat=None

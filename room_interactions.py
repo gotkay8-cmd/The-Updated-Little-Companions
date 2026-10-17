@@ -22,6 +22,8 @@ class RoomInteractions:
         self.interaction_mode='click';self.pointer=None;self.held=False
         self.selected_decoration=None;self.decoration_drag=None
         self.room_window=None;self.room_canvas=None;self.toy_side=1
+        from cursor_reaction import CursorReaction
+        self.cursor_reaction=CursorReaction()
         self.previewing_room=None;self.wander=None;self.hover_zone=None;self.spinning=False
 
     def set_interaction_mode(self,mode):
@@ -83,12 +85,16 @@ class RoomInteractions:
         v=self.pet_placement();walk=getattr(self,'wander',None)
         return (walk['x'],walk['y']) if walk else (v['x'],v['y'])
 
-    def pointer_zone(self,c,x,y):
+    def pointer_coordinates(self,c,x,y):
         view=self.view(c);cx,floor=view.point(*self.pet_position());scale=view.scale*self.room_scale/100
         # Rotation is around sprite center; invert it for accurate hover zones.
         center_y=floor-155*scale;angle=math.radians(self.pet_placement()['angle'])
         dx=(x-cx)/scale;dy=(y-center_y)/scale
         lx=dx*math.cos(angle)+dy*math.sin(angle)+180;ly=-dx*math.sin(angle)+dy*math.cos(angle)+155
+        return lx,ly
+
+    def pointer_zone(self,c,x,y):
+        lx,ly=self.pointer_coordinates(c,x,y)
         walk=getattr(self,'wander',None)
         if walk and self.walking_now():
             direction=walk['direction']
@@ -103,6 +109,7 @@ class RoomInteractions:
 
     def stop_pointer_reaction(self):
         self.hover_zone=None
+        self.cursor_reaction.reset()
         if self.reaction in ('pet','toy'):self.reaction='idle';self.until=0
 
     def refresh_pointer_reaction(self):
@@ -113,6 +120,7 @@ class RoomInteractions:
                 zone=self.pointer_zone(c,x,y);self.hover_zone=zone
                 c.configure(cursor='none' if zone else 'arrow')
                 if zone:
+                    self.cursor_reaction.update(zone,self.pointer_coordinates(c,x,y)[0],time.monotonic())
                     self.toy_side=1 if x<self.view(c).point(*self.pet_position())[0] else 3
                     self.start_reaction(zone)
                 else:self.stop_pointer_reaction()

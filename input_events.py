@@ -3,6 +3,7 @@ import ctypes
 import queue
 import sys
 import threading
+import time
 
 
 class BackgroundInput:
@@ -87,7 +88,7 @@ class BackgroundInput:
             def callback(code, message, data, messages=messages, category=category):
                 # Do not dereference data: no keycodes, text, or pointer positions.
                 if code >= 0 and message in messages:
-                    self.events.put(category)
+                    self.events.put((category,time.monotonic()))
                 return user32.CallNextHookEx(None, code, message, data)
             wrapped = callback_type(callback)
             self.callbacks.append(wrapped)

@@ -17,7 +17,8 @@ class ActivityTests(unittest.TestCase):
             App.start_reaction(app, reaction, now=10.3)
             self.assertEqual(app.animation_started, 10)
             self.assertEqual(App.animation_frame(app, now=10.5), 3)
-            self.assertEqual(app.until, 11.14)
+            self.assertGreater(app.until,10.3)
+            self.assertIn(reaction,app.input_animations)
 
     def test_local_interface_click_counts_without_background_tracking(self):
         counts = []

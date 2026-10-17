@@ -16,8 +16,10 @@ class ApprovedArtTests(unittest.TestCase):
                 for index in range(4):
                     path = outfit_sprite(ART, data, pet, motion, index)
                     self.assertTrue(path.is_file(), path)
-                    self.assertIn('approved', path.parts)
-                    self.assertEqual(layer_paths(ART, data, pet, path), [])
+                    self.assertIn('layered-motions',path.parts)
+                    layers=layer_paths(ART,data,pet,path)
+                    self.assertEqual(len(layers),len(set(layers)))
+                    self.assertTrue(all(p.is_file() for p in layers))
             for direction in ('left', 'right'):
                 for index in range(8):
                     path = outfit_sprite(ART, data, pet, 'idle', index, running=direction)

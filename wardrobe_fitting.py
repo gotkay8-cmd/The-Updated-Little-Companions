@@ -24,7 +24,8 @@ class FittingRoom:
         self.last_paths = None
         self.timer = None
         self.closed = False
-        self.playback = Playback()
+        from layered_animation import preview_timing
+        self.playback = Playback(lambda motion:preview_timing(app.art_dir,self.draft.pet,motion))
         self.playback.showcase = False
         self.playback.playing = not data.get('view_settings', {}).get('reduced_effects', False)
         self.last_time = monotonic()
@@ -44,8 +45,10 @@ class FittingRoom:
         body.columnconfigure(1, weight=1)
         model = tk.Frame(body, bg=CREAM)
         model.grid(row=0, column=0, sticky='nsew', padx=8)
-        self.canvas = tk.Canvas(model, width=360, height=320, bg=CREAM, highlightthickness=0)
+        self.canvas = tk.Canvas(model, width=360, height=360, bg=CREAM, highlightthickness=0)
         self.canvas.pack(expand=True)
+        self.fit_note=tk.Label(model,text='',bg=CREAM,fg=INK,wraplength=350,font=(app.body_font,9))
+        self.fit_note.pack()
         controls = tk.Frame(model, bg=CREAM)
         controls.pack(pady=4)
         CozyChoice(controls, 'Idle', list(MOTIONS), self.motion, font).pack(side='left', padx=4)
@@ -123,7 +126,7 @@ class FittingRoom:
         from approved_art import approved_slots
         self.draft.slots = approved_slots(self.draft.pet)
         self.refresh()
-        self.status.configure(text='Storybook artwork includes the flower, collar and acorn. Buy any missing items, then choose Wear this look. Other combinations use the existing wardrobe artwork.')
+        self.status.configure(text='A coordinated flower, collar and acorn look. Unfinished layers remain hidden for that motion; purchases stay saved.')
         self.render()
 
     def buy(self, slot):
@@ -161,6 +164,9 @@ class FittingRoom:
 
     def render(self):
         paths = tuple(self.draft.paths(self.app.art_dir, self.playback.motion, self.playback.frame))
+        hidden=self.draft.slots.get('outfit') and 'layered-motions' in paths[0].parts and not any(
+            p.parent.name==self.draft.slots['outfit'].lower().removeprefix(self.draft.pet.lower()+' ').removesuffix(' outfit').replace(' ','-') for p in paths[1:])
+        self.fit_note.configure(text='This outfit is still being fitted for this motion. Your purchase stays saved.' if hidden else '')
         if paths == self.last_paths:
             return
         if len(self.photos) > 180:
@@ -168,8 +174,9 @@ class FittingRoom:
         self.canvas.delete('pet')
         for path in paths:
             if path not in self.photos:
-                self.photos[path] = tk.PhotoImage(master=self.frame, data=resized_png(path, 360, 310))
-            self.canvas.create_image(180, 160, image=self.photos[path], tags='pet')
+                self.photos[path] = (tk.PhotoImage(master=self.frame,file=str(path)) if 'layered-motions' in path.parts or 'layered-walk' in path.parts
+                                    else tk.PhotoImage(master=self.frame,data=resized_png(path,360,310)))
+            self.canvas.create_image(180,360,anchor='s',image=self.photos[path],tags='pet')
         self.last_paths = paths
 
     def tick(self):
@@ -179,7 +186,7 @@ class FittingRoom:
         self.playback.advance(min(now - self.last_time, .25))
         self.last_time = now
         self.render()
-        self.timer = self.frame.after(80, self.tick)
+        self.timer = self.frame.after(20, self.tick)
 
     def close(self, event):
         if event.widget != self.frame:

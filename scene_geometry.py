@@ -17,8 +17,9 @@ def room_view(width,height):
     scale=max(.01,min(max(1,width)/780,max(1,height)/520))
     return RoomView(scale,(width-780*scale)/2,(height-520*scale)/2,780*scale,520*scale)
 
-# Sprite coordinates (360x310): head above shoulders; paws/body below shoulders.
-SHOULDERS={'Mochi':177,'Maple':175,'Clover':184,'Pip':180}
+# Interaction coordinates are ground-relative (canvas y minus 50 for the
+# anchored 360px artwork). Match the seated chin/shoulder rather than old art.
+SHOULDERS={'Mochi':210,'Maple':208,'Clover':220,'Pip':213}
 def pet_zone(pet,x,y):
     shoulder=SHOULDERS.get(pet,180)
     if 48<=x<=300 and 26<=y<shoulder:return 'pet'

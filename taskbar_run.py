@@ -24,7 +24,7 @@ class TaskbarRun:
                 self.crossings+=1
                 if self.crossings==2:
                     self.nap_until=now+10.;self.napping=True;self.active=False
-        return round(self.position),'right' if self.direction>0 else 'left',int(self.phase)%8
+        return round(self.position),'right' if self.direction>0 else 'left',int(self.phase)
 
 def running_sprite(art_dir,data,pet,direction,index):
     from pathlib import Path

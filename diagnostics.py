@@ -13,7 +13,7 @@ import threading
 import traceback
 import uuid
 
-VERSION='0.47'
+VERSION='0.60'
 
 class Diagnostics:
     def __init__(self,directory=None):

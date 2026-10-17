@@ -30,14 +30,14 @@ SPRITE_BOUNDS={'Mochi': (46, 313), 'Maple': (52, 307), 'Clover': (44, 315), 'Pip
 
 def layout(percent,pet="Mochi"):
     scale=clamp_scale(percent)/100
-    pet_width=round(360*scale);height=round(310*scale)
+    pet_width=round(360*scale);height=round(360*scale)
     width=pet_width+SIDE*2;size=round(36*scale);gap=round(4*scale);y=max(0,round(height*.80)-size//2)
     left,right=SPRITE_BOUNDS[pet]
     return width,height,[(SIDE+round(left*scale)-size-gap,y,size,size),(SIDE+round(right*scale)+gap,y,size,size)]
 
 def docked_position(work,width,scale,x):
     left,top,right,bottom=work
-    return max(left,min(x,max(left,right-width))),bottom-round(298*scale)
+    return max(left,min(x,max(left,right-width))),bottom-round(331*scale)
 
 def portal_at(percent,x,y,pet="Mochi"):
     for i,(bx,by,bw,bh) in enumerate(layout(percent,pet)[2]):
@@ -176,10 +176,11 @@ class DesktopOverlay:
         point=W.POINT();self.u.GetCursorPos(C.byref(point));pointer=(point.x-self.x,point.y-self.y)
         mode=getattr(a,'desktop_interaction','click')
         w,h,_=layout(a.desktop_scale,pet);scale=a.desktop_scale/100
-        zone=pet_zone(pet,(pointer[0]-SIDE)/scale,pointer[1]/scale)
+        zone=pet_zone(pet,(pointer[0]-SIDE)/scale,pointer[1]/scale-50)
         inside=SIDE<=pointer[0]<w-SIDE and 0<=pointer[1]<h
         mode=zone if not self.drag_origin and self.portal_hit(*pointer) is None else None
         if mode in ('toy','pet'):
+            a.cursor_reaction.update(mode,(pointer[0]-SIDE)/scale,time.monotonic())
             a.toy_side=1 if pointer[0]<w/2 else 3;a.start_reaction(mode)
         else:a.stop_pointer_reaction()
         self.last_pointer=pointer
@@ -198,22 +199,36 @@ class DesktopOverlay:
         elif self.runner.active or self.moved:self.docked_to_hud=False
         self.return_home_requested=False
         running=self.runner.active
-        if running:motion,index='run',run_index
-        elif self.runner.napping:motion,index='sleep',int(now*2)%4
+        from layered_animation import timing
+        if running:
+            count,interval=timing(a.art_dir,pet,running=direction)
+            motion,index='run',int(self.runner.phase/10/interval)%count
+        elif self.runner.napping:
+            count,interval=timing(a.art_dir,pet,'sleep')
+            motion,index='sleep',int(now/interval)%count
         percent=a.desktop_scale;item=tuple(equipped(a.state.data,pet))
         signature=(pet,motion,index,direction if running else None,percent,item,mode,a.state.data['coins'],a.state.data['moonstones'],a.state.data['clicks'],a.state.data['keystrokes'],a.state.data.get('toy_cursor','Favorite toy'),a.state.data.get('cursor_scale',100),int(time.monotonic()*4) if motion=='sleep' else 0,self.x,self.y,pointer if mode in ('pet','toy') and inside else None)
         if signature==self.last_signature:return
         self.check(self.g.GdipGraphicsClear(self.graphics,0))
         scale=percent/100;ph=round(310*scale)
         path=running_sprite(a.art_dir,a.state.data,pet,direction,index) if running else outfit_sprite(a.art_dir,a.state.data,pet,motion,index)
+        top=round(50*scale)
+        if path and 'layered-motions' in path.parts:
+            from layered_animation import sequence
+            info=sequence(a.art_dir,pet,motion,running=direction if running else None)
+            ph=round(info['size'][1]*scale)
+            # The same contact baseline is used for every pose in a sequence.
+            # Airborne running frames retain their lift above this baseline.
+            ground=info.get('desktop_ground_y',330)
+            top=round(331*scale)-round((ground+1)*scale)
         if path:
-            self._draw_image(path,(SIDE,0,round(360*scale),ph))
+            self._draw_image(path,(SIDE,top,round(360*scale),ph))
         else:
-            self._draw_image(a.art_dir/f'{pet.lower()}_{motion}_{index}.png',(SIDE,0,round(360*scale),ph))
+            self._draw_image(a.art_dir/f'{pet.lower()}_{motion}_{index}.png',(SIDE,top,round(360*scale),ph))
         from accessory_layers import layer_paths
         base_path=path or a.art_dir/f'{pet.lower()}_{motion}_{index}.png'
         for overlay in layer_paths(a.art_dir,a.state.data,pet,base_path):
-            self._draw_image(overlay,(SIDE,0,round(360*scale),ph))
+            self._draw_image(overlay,(SIDE,top,round(360*scale),ph))
         if mode=='toy' and inside:
             toy=TOY_CURSORS.get(a.state.data.get('toy_cursor','Favorite toy'))
             path=a.art_dir/('item-'+toy.lower().replace(' ','-')+'-small.png' if toy else f'toy-{DEFAULT_TOYS[pet]}.png')
@@ -286,7 +301,7 @@ class DesktopOverlay:
             mode=getattr(self.app,'desktop_interaction','click')
             point=W.POINT();self.u.GetCursorPos(C.byref(point))
             portal=self.portal_hit(point.x-self.x,point.y-self.y)
-            zone=pet_zone(self.app.state.data['pet'],(point.x-self.x-SIDE)/(self.app.desktop_scale/100),(point.y-self.y)/(self.app.desktop_scale/100))
+            zone=pet_zone(self.app.state.data['pet'],(point.x-self.x-SIDE)/(self.app.desktop_scale/100),(point.y-self.y)/(self.app.desktop_scale/100)-50)
             cursor=None if zone and portal is None else self.u.LoadCursorW(None,C.c_void_p(32649 if mode=='pet' or portal is not None else 32512))
             self.u.SetCursor(cursor);return 1
         if msg==0x21:return 3
@@ -321,7 +336,7 @@ class DesktopOverlay:
                     if self.portal_hit(x,y)==portal:self.actions.put(('home' if portal==0 else 'hide',None))
                 else:
                     mode=getattr(self.app,'desktop_interaction','click');scale=self.app.desktop_scale/100
-                    zone=pet_zone(self.app.state.data['pet'],(x-SIDE)/scale,y/scale)
+                    zone=pet_zone(self.app.state.data['pet'],(x-SIDE)/scale,y/scale-50)
                     if zone and (mode=='click' or zone==mode):self.actions.put(('interact',mode))
             return 0
         if msg==0x0215:

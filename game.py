@@ -157,29 +157,42 @@ class App(ReferenceUI,RoomInteractions):
         self.manual_idle_until=now+.3
         self.update_wander(now);self.render_animals();self.notice.set('Idle time • Your pet can explore the room.')
 
-    def activity(self,count=1,reaction='typing'):
+    def activity(self,count=1,reaction='typing',event_time=None):
         now=time.monotonic()
         if not self.paused:
             bonus=self.state.activity(count,'keystrokes' if reaction=='typing' else 'clicks');self.dirty=True
             if bonus:self.notice.set(f'1,000 activities! +{bonus} free leaves added.')
         if reaction=='click' and now<getattr(self,'manual_idle_until',0):return
-        if not getattr(self,'manual_sleep',False):self.start_reaction(reaction,now,count)
+        if not getattr(self,'manual_sleep',False):self.start_reaction(reaction,now,count,event_time=event_time)
 
-    def start_reaction(self,reaction,now=None,count=1):
+    def start_reaction(self,reaction,now=None,count=1,event_time=None):
         if reaction in ('pet','toy','heart'):self.manual_sleep=False
         elif getattr(self,'manual_sleep',False):return
         now=time.monotonic() if now is None else now
+        input_animation=None
+        if reaction in ('typing','click'):
+            from input_animation import InputAnimation
+            if not hasattr(self,'input_animations'):self.input_animations={}
+            input_animation=self.input_animations.setdefault(reaction,InputAnimation(reaction))
+            input_animation.event(now if event_time is None else event_time,count)
         play=('heart','wave')
         continuing=now<self.until and (self.reaction==reaction or self.reaction in play and reaction in play)
         if not continuing:
             self.animation_offset=1 if reaction in ('pet','toy') else 0;self.animation_started=now
         # Repeated clicks refresh affection without skipping the paw's return.
-        self.last_activity=now;self.reaction=reaction;self.until=now+.84
+        duration=.84
+        if hasattr(self,'art_dir') and hasattr(self,'state'):
+            from layered_animation import timing
+            motion={'heart':'pet','wave':'play'}.get(reaction,reaction)
+            frame_count,interval=timing(self.art_dir,self.state.data['pet'],motion)
+            duration=max(duration,frame_count*interval)
+        self.last_activity=now;self.reaction=reaction;self.until=now+duration
+        if input_animation is not None:self.until=max(now+.10,input_animation.until)
 
     def interact(self,reaction,count=True):
         if not self.global_input and count:self.activity(reaction=reaction)
         else:self.start_reaction(reaction)
-        self.until=self.last_activity+2
+        if reaction not in ('typing','click'):self.until=self.last_activity+2
         self.render_animals()
 
     def local_key(self,event):
@@ -193,6 +206,8 @@ class App(ReferenceUI,RoomInteractions):
         if not self.global_input and not self.paused:
             self.state.activity(1,'clicks')
             self.dirty=True
+            if hasattr(self,'start_reaction') and self.reaction not in ('heart','pet','toy'):
+                self.start_reaction('click')
 
     def toggle_pause(self):self.paused=self.pause_var.get()
     def toggle_global(self):
@@ -315,12 +330,13 @@ class App(ReferenceUI,RoomInteractions):
                 self.hooked=False
                 self.notice.set('Activity listener stopped; using fast activity polling.')
             if self.hooked:
-                for reaction in self.background.drain():
+                for event in self.background.drain():
+                    reaction,event_time=event if isinstance(event,tuple) else (event,now)
                     # Preserve a direct pet-button reaction while counting the click.
-                    direct_click=self.reaction in ('heart','pet','toy','click') and now<self.until
+                    direct_click=reaction!='typing' and self.reaction in ('heart','pet','toy') and now<self.until
                     if direct_click:
                         if not self.paused:self.state.activity(1,'keystrokes' if reaction=='typing' else 'clicks');self.dirty=True
-                    else:self.activity(reaction='click' if reaction=='wave' else reaction)
+                    else:self.activity(reaction='click' if reaction=='wave' else reaction,event_time=event_time)
             else:
                 down={k for k in [1,2,4]+list(range(8,256)) if k not in (16,17,18,160,161,162,163,164,165) and self.get_key(k)&0x8000}
                 pressed=down-self.keys;self.keys=down

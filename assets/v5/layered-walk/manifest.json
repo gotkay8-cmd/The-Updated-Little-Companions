@@ -1,0 +1,13 @@
+{
+  "installed": true,
+  "motion": "side-walking",
+  "frames": 9,
+  "duration_ms": 90,
+  "separate_layers": true,
+  "source": "C:\\Users\\kkllp\\.codex\\.chatgpt-projects\\g-p-6acbf781140c8191a8dd38bc57dead0c\\animation-rebuild\\wardrobe-completion\\completion-audit\\approved-walk-package",
+  "exported_files": 1224,
+  "other_motions": "Existing game artwork retained pending complete separate layers",
+  "source_manifest_sha256": "4ec1431a778d5165cef727192f25b883718eefcebfaacc746401ce91826d675a",
+  "version": "0.60",
+  "clothing_update": "2d-extracted-aligned-v153"
+}

@@ -14,7 +14,7 @@ MODULAR={
  'Bat Charm':dict(slot='charm',rarity='Epic',kind='charm',season='Halloween')}
 COLLARS=('Meadow Collar','Midnight Collar')
 # These costumes already contain a hat/head ornament; avoid overlapping headwear.
-HEAD_CONFLICTS=('Mochi Little Witch Outfit','Mochi Pumpkin Outfit','Maple Harvest Scarecrow Outfit','Clover Candy Corn Outfit','Clover Woodland Fairy Outfit','Pip Moon Wizard Outfit')
+HEAD_CONFLICTS=()
 
 def head_conflict(slots,item):
     # Ear decorations still attach on costumes with painted-in hats.
@@ -38,19 +38,6 @@ def equip_accessory(data,pet,item):
 def layer_key(art_dir,base_path):
     return sha1(Path(base_path).relative_to(Path(art_dir)).as_posix().encode()).hexdigest()[:16]
 def layer_paths(art_dir,data,pet,base_path):
-    from approved_art import is_approved_frame
-    if is_approved_frame(art_dir, base_path):return []
-    from attachment_rig import attachment_paths
-    attached=attachment_paths(art_dir,pet,base_path,accessory_equipped(data,pet),MODULAR)
-    if attached is not None:return attached
-    key=layer_key(art_dir,base_path)
-    try:
-        from accessory_index import INDEX
-    except ImportError:INDEX={}
-    result=[]
-    for item in accessory_equipped(data,pet):
-        slug=item.lower().replace(' ','-')
-        relative=INDEX.get((slug,key),'accessory-layers/'+slug+'/'+key+'.png')
-        path=Path(art_dir)/relative
-        if path.is_file():result.append(path)
-    return result
+    from layered_animation import layers
+    fitted = layers(art_dir,data,pet,base_path)
+    return fitted if fitted is not None else []

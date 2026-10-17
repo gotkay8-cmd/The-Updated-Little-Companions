@@ -12,7 +12,8 @@ MOTIONS = ('Idle', 'Petting', 'Playing', 'Sleeping', 'Clicking', 'Typing',
 REACTIONS = dict(zip(MOTIONS[:7], ('idle','pet','play','sleep','click','typing','toy')))
 
 class Playback:
-    def __init__(self):
+    def __init__(self, timing_resolver=None):
+        self.timing_resolver=timing_resolver
         self.motion = MOTIONS[0]
         self.frame = 0
         self.elapsed = 0.0
@@ -21,10 +22,14 @@ class Playback:
 
     @property
     def count(self):
+        if self.timing_resolver:return self.timing_resolver(self.motion)[0]
+        if self.motion in ('Walk left','Walk right'):return 9
         return 8 if self.motion.startswith('Run') or self.motion == 'Turn around' else 4
 
     @property
     def interval(self):
+        if self.timing_resolver:return self.timing_resolver(self.motion)[1]
+        if self.motion in ('Walk left','Walk right'):return .09
         return .09 if self.motion.startswith('Run') else .16 if self.motion.startswith('Walk') else .24
 
     def select(self, motion):
@@ -39,7 +44,10 @@ class Playback:
             remainder = self.elapsed % 3.84
             self.select(MOTIONS[(MOTIONS.index(self.motion) + 1) % len(MOTIONS)])
             self.elapsed = remainder
-        self.frame = int(self.elapsed / self.interval) % self.count
+        if self.motion=='Idle' and self.timing_resolver:
+            phase=self.elapsed%2.71
+            self.frame=0 if phase<2.2 else 1 if phase<2.38 else 2 if phase<2.53 else 3
+        else:self.frame = int(self.elapsed / self.interval) % self.count
 
     def step(self):
         self.playing = False
@@ -96,7 +104,8 @@ class OutfitPreview:
     def __init__(self, app, item):
         self.app = app
         self.item = item
-        self.playback = Playback()
+        from layered_animation import preview_timing
+        self.playback = Playback(lambda motion:preview_timing(app.art_dir,CATALOG[self.item]['pet'] or app.state.data['pet'],motion))
         self.photos = {}
         self.after_id = None
         self.closed = False
@@ -110,10 +119,10 @@ class OutfitPreview:
         self.title.pack()
         self.details = tk.Label(body, bg='#fff8eb', fg='#80654e', font=(app.body_font, 10))
         self.details.pack(pady=4)
-        self.canvas = tk.Canvas(body, width=640, height=340, bg='#f3e6d1', highlightthickness=1, highlightbackground='#dfc7a6')
+        self.canvas = tk.Canvas(body, width=640, height=380, bg='#f3e6d1', highlightthickness=1, highlightbackground='#dfc7a6')
         self.canvas.pack(pady=6)
-        self.canvas.create_oval(145,285,495,325,fill='#e4d2b6',outline='')
-        self.sprite = self.canvas.create_image(320, 325, anchor='s')
+        self.canvas.create_oval(145,325,495,365,fill='#e4d2b6',outline='')
+        self.sprite = self.canvas.create_image(320, 365, anchor='s')
         self.status = tk.Label(body, bg='#fff8eb', fg='#604333', font=font)
         self.status.pack()
         choices = tk.Frame(body, bg='#fff8eb'); choices.pack(pady=4)
@@ -128,7 +137,7 @@ class OutfitPreview:
         navigation = tk.Frame(body,bg='#fff8eb'); navigation.pack(pady=4)
         CozyButton(navigation,'‹ Previous outfit',lambda:self.change(-1),font).pack(side='left',padx=4)
         CozyButton(navigation,'Next outfit ›',lambda:self.change(1),font).pack(side='left',padx=4)
-        tk.Label(body,text='Preview only • accessories follow your selected pet and outfit; built-in hats block extra headwear',bg='#fff8eb',fg='#80654e',font=(app.body_font,9)).pack(pady=3)
+        tk.Label(body,text='Preview only • clothing and accessories use separate fitted layers',bg='#fff8eb',fg='#80654e',font=(app.body_font,9)).pack(pady=3)
         self.refresh_title()
         self.last_tick = monotonic()
         self.tick()
@@ -178,7 +187,11 @@ class OutfitPreview:
         from accessory_layers import MODULAR,HEAD_CONFLICTS
         if self.item in MODULAR:
             paths=accessory_preview_paths(self.app.art_dir,self.app.state.data,self.item,p.motion,p.frame)
-        else:paths=[preview_sprite(self.app.art_dir,self.item,p.motion,p.frame)]
+        else:
+            from wardrobe_model import WardrobeDraft
+            pet=CATALOG[self.item]['pet']
+            draft=WardrobeDraft({'wardrobe':{pet:{'outfit':self.item}}},pet)
+            paths=draft.paths(self.app.art_dir,p.motion,p.frame)
         if tuple(paths)!=self.last_path:
             self.canvas.delete('accessory-preview')
             for i,path in enumerate(paths):
@@ -186,7 +199,7 @@ class OutfitPreview:
                     if len(self.photos)>280:self.photos.clear()
                     self.photos[path]=tk.PhotoImage(master=self.win,file=str(path))
                 if i==0:self.canvas.itemconfigure(self.sprite,image=self.photos[path])
-                else:self.canvas.create_image(320,325,anchor='s',image=self.photos[path],tags='accessory-preview')
+                else:self.canvas.create_image(320,365,anchor='s',image=self.photos[path],tags='accessory-preview')
             self.last_path=tuple(paths)
         controls = (p.motion, p.frame, p.showcase, p.playing)
         if controls != self.last_controls:
@@ -202,7 +215,7 @@ class OutfitPreview:
         self.playback.advance(min(now - self.last_tick, .25))
         self.last_tick = now
         self.render()
-        self.after_id = self.win.after(40, self.tick)
+        self.after_id = self.win.after(20, self.tick)
 
     def destroyed(self, event):
         if event.widget != self.win: return
